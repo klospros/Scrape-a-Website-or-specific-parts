@@ -1,0 +1,47 @@
+# Scrape specific part of a website and save the output to a .html file
+
+from lxml import html
+import requests
+
+page = requests.get('https://www.fasthosts.co.uk/careers/current-vacancies')
+# Use requests.get to retrieve the web page with the data, parse it using the html module and save the results in the content request:
+
+content = html.fromstring(page.content)
+# Use page.content rather than page.text because html.fromstring implicitly expects bytes as input
+
+Vacancies = content.xpath('//h1[@class="featuredvacancy__title featuredvacancy__title--invert grid-16 alpha"]/text()')
+# This will create a list of Vacancies from the h1 class above
+
+f = open('scrapevacancy.html', 'w')
+# Opens the file. The 'w' comment will create the file if it does not exist and empty it if it does
+
+li = [a.attrib['href'] for a in content.xpath('//a[@class="button button__primary featuredvacancy__button"]')]
+# li = list the a class from the above
+
+i = 0
+for l in li:
+#Starts the for loop
+
+    newpage = requests.get('https://www.fasthosts.co.uk/'+l)
+	# Prepend the url 'https://www.fasthosts.co.uk' to the list generated from the content.xpath
+	
+    newcontent = html.fromstring(newpage.content)
+	# Use page.content rather than newpage.text because html.fromstring implicitly expects bytes as input
+	
+    apply = newcontent.xpath('//a[@class="button button__primary button--dtfull"]')
+	# Enter the given URL to start the search
+	
+    if apply:
+        f.write(str(Vacancies[i]) + '  - Apply Now button = Yes <br/>')
+	# If 'Apply Now' button is displayed, print Yes
+	
+    else:
+        f.write(str(Vacancies[i]) + '  - Apply Now button = No <br/')
+	# If 'Apply Now' button is not displayed, print No
+	
+    i=i+1
+	# Continue through the loop
+# Writes the output to the .html file in one sting to include a line break at the end of each result found
+
+f.close
+# Closes the file
