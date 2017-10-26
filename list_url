@@ -1,0 +1,19 @@
+# Scrape specific part of a website and save the output to a .html file
+from lxml import html
+import requests
+
+page = requests.get('https://www.fasthosts.co.uk/careers/current-vacancies')
+# Use requests.get to retrieve the web page with our data, parse it using the html module and save the results in the content request:
+
+content = html.fromstring(page.content)
+# Use page.content rather than page.text because html.fromstring implicitly expects bytes as input
+
+List = content.xpath('//div[@class="grid-12 alpha omega"]/a/@href')
+# This will create a list of URL's excluding https://fasthosts.co.uk/ from the h1 class above
+
+f = open('listurl.html', 'w')
+# Opens the file. The 'w' comment will create the file if it does not exist and empty it if it does
+f.write('<br>'.join(map(str, List)))
+# Writes the output to the file in one sting to include a line break at the end of each result found
+f.close
+# Closes the file
